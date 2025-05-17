@@ -10,6 +10,7 @@ def render(draw, width, height):
     current_second = now.second
 
     draw.text((4, 2), now.strftime("%H:%M"), fill="white", font=font)
+    print(current_second)
     draw.line(((2, 0), (current_second + 2, 0)), fill="white")
 
     if previous_second != current_second:
