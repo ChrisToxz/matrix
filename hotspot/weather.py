@@ -31,10 +31,27 @@ def update_weather():
     global weather_data
     r = requests.get(
         'https://weerlive.nl/api/json-data-10min.php',
-        params={'key':'b9a069cd2b','locatie':'Almere'}
+        params={'key': 'b9a069cd2b', 'locatie': 'Almere'}
     )
-    weather_data = r.json()['liveweer'][0]
+
+    try:
+        payload = r.json()
+    except requests.exceptions.JSONDecodeError as e:
+        print(f"[red]⚠️ JSON decode failed: {e}[/red]")
+        print("[yellow]Raw response was:[/yellow]")
+        pprint(r.text)
+        return  # bail out, keep the old weather_data
+
+    live = payload.get('liveweer')
+    if not live or not isinstance(live, list):
+        print("[red]⚠️ Unexpected payload structure:[/red]")
+        pprint(payload)
+        return  # again, don’t overwrite weather_data
+
+    # finally, safe to update
+    weather_data = live[0]
     print(f"[blue]Weather updated: {weather_data['temp']}°C[/blue]")
+
 
 def render(draw, width, height):
     global current_msg, msg_switched, end_reached_time
